@@ -103,19 +103,28 @@ That makes the plugin available as a local plugin source. Public search/discover
 Preview the LaunchAgent:
 
 ```bash
-./scripts/install-launch-agent.sh --print
+./scripts/install-launch-agent.sh --mode=control --print
 ```
 
-Install it:
+Install voice control at login:
 
 ```bash
-./scripts/install-launch-agent.sh
+npm run startup:control
+launchctl unload "$HOME/Library/LaunchAgents/dev.agentclash.voice-standup.plist" 2>/dev/null || true
 launchctl load "$HOME/Library/LaunchAgents/dev.agentclash.voice-standup.plist"
 ```
 
-Set `OPENAI_API_KEY` in your shell environment or in a secure launchd-compatible secret flow before enabling the agent.
+This opens a Terminal window at login and runs `npm run control`. macOS microphone permissions work much more reliably this way than from a headless background process. Grant Microphone access to Terminal when macOS asks.
 
-The LaunchAgent runs one startup standup. It does not start a continuous microphone listener.
+Or install one startup standup instead of persistent voice control:
+
+```bash
+npm run startup:standup
+launchctl unload "$HOME/Library/LaunchAgents/dev.agentclash.voice-standup.plist" 2>/dev/null || true
+launchctl load "$HOME/Library/LaunchAgents/dev.agentclash.voice-standup.plist"
+```
+
+The LaunchAgent loads `.env` automatically before starting. Voice-control mode records short commands instead of keeping a continuous hot mic running.
 
 ## Voice Path
 
@@ -161,7 +170,7 @@ Desktop actions must be allowlisted in `scripts/voice-standup.mjs`. Anything tha
 - Wake word support.
 - Better microphone device selection UI.
 - Calendar and issue tracker context.
-- Optional wake-at-login setup during install.
+- Better wake-at-login setup during install.
 - Marketplace-ready screenshots and icons.
 
 ## Sharing

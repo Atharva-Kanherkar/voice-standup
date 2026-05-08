@@ -24,6 +24,9 @@
     "listen": "node scripts/voice-standup.mjs --listen",
     "voice": "node scripts/voice-standup.mjs --voice-once",
     "control": "node scripts/voice-standup.mjs --voice-control",
+    "startup:standup": "./scripts/install-launch-agent.sh --mode=standup",
+    "startup:control": "./scripts/install-launch-agent.sh --mode=terminal-control",
+    "startup:background-control": "./scripts/install-launch-agent.sh --mode=control",
     "mcp": "node scripts/mcp-server.mjs",
     "context": "node scripts/collect-standup-context.mjs",
     "check": "node --check scripts/voice-standup.mjs && node --check scripts/collect-standup-context.mjs && node --check scripts/mcp-server.mjs"
