@@ -4,6 +4,21 @@
   "private": true,
   "type": "module",
   "description": "Local Realtime API voice standup companion plugin scaffold.",
+  "keywords": [
+    "codex-plugin",
+    "openai-realtime",
+    "realtime-api",
+    "voice-agent",
+    "standup",
+    "developer-productivity",
+    "mcp-server"
+  ],
+  "homepage": "https://github.com/Atharva-Kanherkar/voice-standup",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Atharva-Kanherkar/voice-standup.git"
+  },
+  "license": "MIT",
   "scripts": {
     "standup": "node scripts/voice-standup.mjs --standup",
     "listen": "node scripts/voice-standup.mjs --listen",

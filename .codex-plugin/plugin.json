@@ -4,32 +4,38 @@
   "description": "Realtime voice standup companion for startup briefings and safe desktop command routing.",
   "author": {
     "name": "Atharva",
-    "email": "[TODO: author@example.com]",
-    "url": "[TODO: https://github.com/atharva]"
+    "email": "[TODO: public-email@example.com]",
+    "url": "https://github.com/Atharva-Kanherkar"
   },
   "homepage": "https://github.com/Atharva-Kanherkar/voice-standup",
   "repository": "https://github.com/Atharva-Kanherkar/voice-standup",
   "license": "MIT",
   "keywords": [
+    "codex-plugin",
+    "openai-realtime",
+    "realtime-api",
     "realtime",
     "voice",
+    "voice-agent",
     "standup",
-    "desktop"
+    "desktop",
+    "developer-productivity",
+    "mcp"
   ],
   "skills": "./skills/",
   "hooks": "./hooks.json",
   "mcpServers": "./.mcp.json",
-  "apps": "[TODO: ./.app.json]",
   "interface": {
     "displayName": "Voice Standup",
     "shortDescription": "Start your machine, hear your standup, and route safe desktop actions by voice.",
-    "longDescription": "Voice Standup is a local-first Codex plugin scaffold for an OpenAI Realtime powered desktop companion. It gathers a morning context packet, asks a realtime model for a concise standup, and keeps desktop control behind explicit allowlists and confirmations.",
+    "longDescription": "Voice Standup is a local-first Codex plugin for an OpenAI Realtime powered desktop companion. It discovers recent local git work, GitHub activity, and lightweight project docs, asks a realtime model for a concise standup, and keeps desktop control behind explicit allowlists and confirmations.",
     "developerName": "Atharva",
     "category": "Productivity",
     "capabilities": [
       "Interactive",
       "Voice",
-      "Local automation"
+      "Local automation",
+      "MCP"
     ],
     "websiteURL": "https://github.com/Atharva-Kanherkar/voice-standup",
     "privacyPolicyURL": "[TODO: https://openai.com/policies/row-privacy-policy/]",

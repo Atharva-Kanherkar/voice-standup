@@ -1,15 +1,42 @@
 # Voice Standup
 
-Local Codex plugin for a Realtime API desktop companion:
+> A local Codex plugin that uses the OpenAI Realtime API to give you a spoken developer standup from everything you touched in the last 24 hours.
+
+[![GitHub stars](https://img.shields.io/github/stars/Atharva-Kanherkar/voice-standup?style=social)](https://github.com/Atharva-Kanherkar/voice-standup/stargazers)
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](./LICENSE)
+[![Realtime API](https://img.shields.io/badge/OpenAI-Realtime_API-10A37F)](https://platform.openai.com/docs/guides/realtime)
+
+Voice Standup is a local-first Codex plugin for an OpenAI Realtime powered desktop companion:
 
 - On startup, automatically gather recent work across local git repos and GitHub activity.
 - Ask `gpt-realtime-2` for a concise standup.
 - Speak the standup with macOS `say` when available.
 - Keep desktop control behind explicit local allowlists.
 
-This is an early prototype. It is useful for hackers who are comfortable running a local plugin and setting their own OpenAI API key.
+It is built for builders who wake up, open the machine, and want: “What did I do yesterday, what matters today, what is blocked, and what should I do first?”
 
-## Setup
+## Quick Install
+
+```bash
+curl -fsSL https://raw.githubusercontent.com/Atharva-Kanherkar/voice-standup/main/install.sh | bash
+```
+
+Then add your API key:
+
+```bash
+cd ~/plugins/voice-standup
+cp .env.example .env
+open .env
+```
+
+Run your first standup:
+
+```bash
+set -a; source .env; set +a
+npm run standup
+```
+
+## Manual Setup
 
 ```bash
 git clone https://github.com/Atharva-Kanherkar/voice-standup.git
@@ -18,14 +45,19 @@ npm install
 cp .env.example .env
 ```
 
-Set your API key:
+Set your API key in `.env` or your shell:
 
 ```bash
-export OPENAI_API_KEY="sk-..."
+OPENAI_API_KEY="sk-..."
+```
+
+Run:
+
+```bash
 npm run standup
 ```
 
-The prototype uses the OpenAI Realtime WebSocket API:
+Voice Standup uses the OpenAI Realtime WebSocket API:
 
 ```text
 wss://api.openai.com/v1/realtime?model=gpt-realtime-2
@@ -47,6 +79,18 @@ VOICE_STANDUP_LOOKBACK_HOURS=24
 VOICE_STANDUP_MAX_REPOS=12
 VOICE_STANDUP_SCAN_ROOTS="/path/to/repos,/another/path"
 ```
+
+## Codex Plugin Install
+
+This repo includes a Codex plugin manifest at `.codex-plugin/plugin.json`, an MCP server config at `.mcp.json`, and a skill at `skills/voice-standup/SKILL.md`.
+
+If your Codex build supports local plugin marketplaces, the installer writes a local marketplace entry to:
+
+```text
+~/.agents/plugins/marketplace.json
+```
+
+That makes the plugin available as a local plugin source. Public search/discovery inside Codex appears to be curated/indexed separately, so GitHub publishing alone may not immediately make it show up next to plugins like Supabase. This repo is structured so it can be submitted or indexed when a public plugin submission path is available.
 
 ## Startup on macOS
 
@@ -81,8 +125,26 @@ That records a short utterance, sends PCM audio to the Realtime API, and speaks 
 
 Desktop actions must be allowlisted in `scripts/voice-standup.mjs`. Anything that sends messages, deletes files, purchases, installs software, edits system settings, or runs arbitrary shell commands should require an explicit confirmation step.
 
-## Sharing Notes
+## Why It Is Different
+
+- It does not only summarize one repo.
+- It auto-detects recent local project work.
+- It blends local git activity with GitHub events.
+- It speaks your standup out loud.
+- It is intentionally local-first: your API key stays on your machine.
+
+## Roadmap
+
+- Continuous push-to-talk mode.
+- Better microphone device selection UI.
+- Calendar and issue tracker context.
+- Optional wake-at-login setup during install.
+- Marketplace-ready screenshots and icons.
+
+## Sharing
 
 - Do not commit `.env` or API keys.
 - Do not commit `node_modules/`.
 - If you publish this as a Codex marketplace plugin later, update `.codex-plugin/plugin.json` with real homepage, repository, logo, and screenshot URLs.
+
+Useful tags: `codex-plugin`, `openai-realtime`, `realtime-api`, `voice-agent`, `developer-productivity`, `standup-bot`, `mcp-server`, `local-first-ai`.
