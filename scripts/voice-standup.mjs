@@ -51,7 +51,7 @@ function connectRealtime() {
           audio: {
             input: {
               format: { type: "audio/pcm", rate: 24000 },
-              turn_detection: { type: "semantic_vad" },
+              turn_detection: null,
             },
             output: { voice },
           },
@@ -167,10 +167,20 @@ async function speak(text) {
   await execFileAsync("say", [text.slice(0, 3500)]).catch(() => {});
 }
 
+function sleep(ms) {
+  return new Promise((resolve) => setTimeout(resolve, ms));
+}
+
 async function recordShortUtterance() {
   const seconds = process.env.VOICE_STANDUP_RECORD_SECONDS || "5";
   const timeout = (Number(seconds) + 5) * 1000;
+  const minAudioBytes = 4800; // 100ms of 24kHz 16-bit mono PCM.
   const candidates = [
+    {
+      command: "sox",
+      label: "sox default device",
+      args: ["-q", "-d", "-b", "16", "-c", "1", "-r", "24000", "-e", "signed-integer", "-t", "raw", "-", "trim", "0", seconds],
+    },
     {
       command: "rec",
       label: "sox/rec",
@@ -212,6 +222,10 @@ async function recordShortUtterance() {
         timeout,
         maxBuffer: 2 * 1024 * 1024,
       });
+      if (stdout.length < minAudioBytes) {
+        throw new Error(`recorded ${stdout.length} bytes; expected at least ${minAudioBytes}`);
+      }
+      console.log(`Captured ${(stdout.length / 48000).toFixed(1)}s of audio (${stdout.length} bytes).`);
       return stdout;
     } catch (error) {
       errors.push(`${candidate.label}: ${error.message}`);
@@ -310,18 +324,25 @@ async function runVoiceControl(ws) {
   console.log("This records short commands instead of keeping a continuous hot mic.");
 
   for (;;) {
-    const audio = await recordShortUtterance();
-    sendAudioForIntent(ws, audio);
-    const raw = await waitForTextResponse(ws);
-    const intent = extractJsonObject(raw);
-    const result = await runVoiceIntent(ws, intent);
-    if (result === "__quit__") {
-      await speak("Voice control stopped.");
-      break;
-    }
-    if (result) {
-      console.log(result);
-      await speak(result);
+    try {
+      const audio = await recordShortUtterance();
+      sendAudioForIntent(ws, audio);
+      const raw = await waitForTextResponse(ws);
+      const intent = extractJsonObject(raw);
+      const result = await runVoiceIntent(ws, intent);
+      if (result === "__quit__") {
+        await speak("Voice control stopped.");
+        break;
+      }
+      if (result) {
+        console.log(result);
+        await speak(result);
+      }
+    } catch (error) {
+      const message = `Voice control could not capture a command: ${error.message}`;
+      console.error(message);
+      await speak("I could not hear a command. Check microphone permission for Terminal.");
+      await sleep(2000);
     }
   }
 }
