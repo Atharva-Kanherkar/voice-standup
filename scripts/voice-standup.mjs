@@ -132,21 +132,55 @@ async function speak(text) {
 
 async function recordShortUtterance() {
   const seconds = process.env.VOICE_STANDUP_RECORD_SECONDS || "5";
-  console.log(`Recording ${seconds}s voice command with sox/rec...`);
-  try {
-    const { stdout } = await execFileAsync(
-      "rec",
-      ["-q", "-b", "16", "-c", "1", "-r", "24000", "-e", "signed-integer", "-t", "raw", "-", "trim", "0", seconds],
-      {
-        encoding: "buffer",
-        timeout: (Number(seconds) + 3) * 1000,
-        maxBuffer: 2 * 1024 * 1024,
-      },
-    );
-    return stdout;
-  } catch (error) {
-    throw new Error(`Could not record audio. Install sox with 'brew install sox'. ${error.message}`);
+  const timeout = (Number(seconds) + 5) * 1000;
+  const candidates = [
+    {
+      command: "rec",
+      label: "sox/rec",
+      args: ["-q", "-b", "16", "-c", "1", "-r", "24000", "-e", "signed-integer", "-t", "raw", "-", "trim", "0", seconds],
+    },
+  ];
+
+  if (process.platform === "darwin") {
+    candidates.push({
+      command: "ffmpeg",
+      label: "ffmpeg avfoundation",
+      args: [
+        "-hide_banner",
+        "-loglevel",
+        "error",
+        "-f",
+        "avfoundation",
+        "-i",
+        `:${process.env.VOICE_STANDUP_AUDIO_DEVICE || "0"}`,
+        "-t",
+        seconds,
+        "-ac",
+        "1",
+        "-ar",
+        "24000",
+        "-f",
+        "s16le",
+        "pipe:1",
+      ],
+    });
   }
+
+  const errors = [];
+  for (const candidate of candidates) {
+    try {
+      console.log(`Recording ${seconds}s voice command with ${candidate.label}...`);
+      const { stdout } = await execFileAsync(candidate.command, candidate.args, {
+        encoding: "buffer",
+        timeout,
+        maxBuffer: 2 * 1024 * 1024,
+      });
+      return stdout;
+    } catch (error) {
+      errors.push(`${candidate.label}: ${error.message}`);
+    }
+  }
+  throw new Error(`Could not record audio. Tried: ${errors.join("; ")}. On macOS, grant microphone permission to Terminal/VS Code or install sox with 'brew install sox'.`);
 }
 
 async function runStandup(ws) {

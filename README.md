@@ -2,7 +2,7 @@
 
 Local Codex plugin for a Realtime API desktop companion:
 
-- On startup, gather a small local work context packet.
+- On startup, automatically gather recent work across local git repos and GitHub activity.
 - Ask `gpt-realtime-2` for a concise standup.
 - Speak the standup with macOS `say` when available.
 - Keep desktop control behind explicit local allowlists.
@@ -31,6 +31,23 @@ The prototype uses the OpenAI Realtime WebSocket API:
 wss://api.openai.com/v1/realtime?model=gpt-realtime-2
 ```
 
+## Standup Context
+
+By default, Voice Standup scans recent activity from the last 24 hours across:
+
+- local git repos under your home directory and common work folders
+- changed, untracked, and recently committed files
+- authenticated GitHub events through `gh`, when available
+- lightweight project docs such as `README.md`, `AGENTS.md`, and `TODO.md`
+
+You usually do not need to configure anything. Optional overrides are available for unusual setups:
+
+```bash
+VOICE_STANDUP_LOOKBACK_HOURS=24
+VOICE_STANDUP_MAX_REPOS=12
+VOICE_STANDUP_SCAN_ROOTS="/path/to/repos,/another/path"
+```
+
 ## Startup on macOS
 
 Preview the LaunchAgent:
@@ -52,14 +69,13 @@ The LaunchAgent runs one startup standup. It does not start a continuous microph
 
 ## Voice Path
 
-The prototype includes a short voice-input path through `sox`:
+The prototype includes a short voice-input path through `sox` or macOS `ffmpeg`:
 
 ```bash
-brew install sox
 npm run voice
 ```
 
-That records a short utterance, sends PCM audio to the Realtime API, and speaks the model's text answer with macOS `say`. The continuous wake-word/listening loop is intentionally left as the next layer so startup automation does not accidentally keep a hot mic running without an explicit install decision.
+That records a short utterance, sends PCM audio to the Realtime API, and speaks the model's text answer with macOS `say`. If recording fails, grant microphone permission to your terminal app or install `sox` with `brew install sox`. The continuous wake-word/listening loop is intentionally left as the next layer so startup automation does not accidentally keep a hot mic running without an explicit install decision.
 
 ## Safety Model
 
