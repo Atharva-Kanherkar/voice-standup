@@ -90,6 +90,32 @@ function sendUserAudio(ws, audioBuffer) {
   }));
 }
 
+function sendAudioForIntent(ws, audioBuffer) {
+  ws.send(JSON.stringify({
+    type: "input_audio_buffer.append",
+    audio: audioBuffer.toString("base64"),
+  }));
+  ws.send(JSON.stringify({ type: "input_audio_buffer.commit" }));
+  ws.send(JSON.stringify({
+    type: "response.create",
+    response: {
+      output_modalities: ["text"],
+      instructions: `
+Interpret the user's spoken command as exactly one JSON object and output no prose.
+Allowed actions:
+- {"action":"standup"}
+- {"action":"open_app","app":"calendar|notes|reminders|terminal|safari|chrome|slack"}
+- {"action":"git_status"}
+- {"action":"quit"}
+- {"action":"chat","message":"short answer to speak"}
+- {"action":"unknown","message":"short clarification"}
+
+Never invent shell commands. Never choose an action outside this schema.
+`.trim(),
+    },
+  }));
+}
+
 function waitForTextResponse(ws) {
   return new Promise((resolve, reject) => {
     let text = "";
@@ -111,6 +137,17 @@ function waitForTextResponse(ws) {
     };
     ws.on("message", onMessage);
   });
+}
+
+function extractJsonObject(text) {
+  const start = text.indexOf("{");
+  const end = text.lastIndexOf("}");
+  if (start === -1 || end === -1 || end <= start) return null;
+  try {
+    return JSON.parse(text.slice(start, end + 1));
+  } catch {
+    return null;
+  }
 }
 
 async function collectStandupContext() {
@@ -205,6 +242,39 @@ async function runAllowlistedLocalAction(command) {
   return null;
 }
 
+async function runVoiceIntent(ws, intent) {
+  if (!intent || typeof intent !== "object") {
+    return "I could not understand that command.";
+  }
+
+  if (intent.action === "standup") {
+    await runStandup(ws);
+    return null;
+  }
+
+  if (intent.action === "open_app" && typeof intent.app === "string") {
+    return runAllowlistedLocalAction(`open ${intent.app}`);
+  }
+
+  if (intent.action === "git_status") {
+    return runAllowlistedLocalAction("git status");
+  }
+
+  if (intent.action === "quit") {
+    return "__quit__";
+  }
+
+  if (intent.action === "chat" && typeof intent.message === "string") {
+    return intent.message;
+  }
+
+  if (intent.action === "unknown" && typeof intent.message === "string") {
+    return intent.message;
+  }
+
+  return "That command is not allowlisted yet.";
+}
+
 async function listenLoop(ws) {
   const rl = createInterface({ input, output });
   console.log("Voice Standup listening in text mode. Try: standup, open calendar, git status, quit");
@@ -235,8 +305,29 @@ async function runVoiceOnce(ws) {
   await speak(text);
 }
 
-if (args.has("--help") || (!args.has("--standup") && !args.has("--listen") && !args.has("--voice-once"))) {
-  console.log("Usage: node scripts/voice-standup.mjs --standup|--listen|--voice-once");
+async function runVoiceControl(ws) {
+  console.log("Voice control ready. Say: standup, open calendar, open notes, git status, or quit.");
+  console.log("This records short commands instead of keeping a continuous hot mic.");
+
+  for (;;) {
+    const audio = await recordShortUtterance();
+    sendAudioForIntent(ws, audio);
+    const raw = await waitForTextResponse(ws);
+    const intent = extractJsonObject(raw);
+    const result = await runVoiceIntent(ws, intent);
+    if (result === "__quit__") {
+      await speak("Voice control stopped.");
+      break;
+    }
+    if (result) {
+      console.log(result);
+      await speak(result);
+    }
+  }
+}
+
+if (args.has("--help") || (!args.has("--standup") && !args.has("--listen") && !args.has("--voice-once") && !args.has("--voice-control"))) {
+  console.log("Usage: node scripts/voice-standup.mjs --standup|--listen|--voice-once|--voice-control");
   process.exit(0);
 }
 
@@ -245,6 +336,7 @@ try {
   if (args.has("--standup")) await runStandup(ws);
   if (args.has("--listen")) await listenLoop(ws);
   if (args.has("--voice-once")) await runVoiceOnce(ws);
+  if (args.has("--voice-control")) await runVoiceControl(ws);
 } finally {
   ws.close();
 }

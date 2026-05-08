@@ -36,6 +36,12 @@ set -a; source .env; set +a
 npm run standup
 ```
 
+Control it with your voice:
+
+```bash
+npm run control
+```
+
 ## Manual Setup
 
 ```bash
@@ -113,13 +119,29 @@ The LaunchAgent runs one startup standup. It does not start a continuous microph
 
 ## Voice Path
 
-The prototype includes a short voice-input path through `sox` or macOS `ffmpeg`:
+The prototype includes a short voice-input path through `sox` or macOS `ffmpeg`.
+
+For one spoken prompt:
 
 ```bash
 npm run voice
 ```
 
-That records a short utterance, sends PCM audio to the Realtime API, and speaks the model's text answer with macOS `say`. If recording fails, grant microphone permission to your terminal app or install `sox` with `brew install sox`. The continuous wake-word/listening loop is intentionally left as the next layer so startup automation does not accidentally keep a hot mic running without an explicit install decision.
+For repeated voice control:
+
+```bash
+npm run control
+```
+
+Try saying:
+
+- "standup"
+- "open calendar"
+- "open notes"
+- "git status"
+- "quit"
+
+That records a short utterance, sends PCM audio to the Realtime API, maps it to an allowlisted action, and speaks the result with macOS `say`. If recording fails, grant microphone permission to your terminal app or install `sox` with `brew install sox`. Voice control records short commands instead of keeping a continuous hot mic running.
 
 ## Safety Model
 
@@ -136,6 +158,7 @@ Desktop actions must be allowlisted in `scripts/voice-standup.mjs`. Anything tha
 ## Roadmap
 
 - Continuous push-to-talk mode.
+- Wake word support.
 - Better microphone device selection UI.
 - Calendar and issue tracker context.
 - Optional wake-at-login setup during install.
