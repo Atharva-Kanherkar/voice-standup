@@ -1,0 +1,20 @@
+{
+  "name": "@agentclash/voice-standup-plugin",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "description": "Local Realtime API voice standup companion plugin scaffold.",
+  "scripts": {
+    "standup": "node scripts/voice-standup.mjs --standup",
+    "listen": "node scripts/voice-standup.mjs --listen",
+    "voice": "node scripts/voice-standup.mjs --voice-once",
+    "mcp": "node scripts/mcp-server.mjs",
+    "context": "node scripts/collect-standup-context.mjs",
+    "check": "node --check scripts/voice-standup.mjs && node --check scripts/collect-standup-context.mjs && node --check scripts/mcp-server.mjs"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.13.0",
+    "ws": "^8.18.0",
+    "zod": "^3.23.8"
+  }
+}

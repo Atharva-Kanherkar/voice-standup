@@ -1,0 +1,51 @@
+{
+  "name": "voice-standup",
+  "version": "0.1.0",
+  "description": "Realtime voice standup companion for startup briefings and safe desktop command routing.",
+  "author": {
+    "name": "Atharva",
+    "email": "[TODO: author@example.com]",
+    "url": "[TODO: https://github.com/atharva]"
+  },
+  "homepage": "https://github.com/Atharva-Kanherkar/voice-standup",
+  "repository": "https://github.com/Atharva-Kanherkar/voice-standup",
+  "license": "MIT",
+  "keywords": [
+    "realtime",
+    "voice",
+    "standup",
+    "desktop"
+  ],
+  "skills": "./skills/",
+  "hooks": "./hooks.json",
+  "mcpServers": "./.mcp.json",
+  "apps": "[TODO: ./.app.json]",
+  "interface": {
+    "displayName": "Voice Standup",
+    "shortDescription": "Start your machine, hear your standup, and route safe desktop actions by voice.",
+    "longDescription": "Voice Standup is a local-first Codex plugin scaffold for an OpenAI Realtime powered desktop companion. It gathers a morning context packet, asks a realtime model for a concise standup, and keeps desktop control behind explicit allowlists and confirmations.",
+    "developerName": "Atharva",
+    "category": "Productivity",
+    "capabilities": [
+      "Interactive",
+      "Voice",
+      "Local automation"
+    ],
+    "websiteURL": "https://github.com/Atharva-Kanherkar/voice-standup",
+    "privacyPolicyURL": "[TODO: https://openai.com/policies/row-privacy-policy/]",
+    "termsOfServiceURL": "[TODO: https://openai.com/policies/row-terms-of-use/]",
+    "defaultPrompt": [
+      "Give me my startup standup.",
+      "Listen for safe desktop commands.",
+      "Summarize what I should do next."
+    ],
+    "brandColor": "#10A37F",
+    "composerIcon": "[TODO: ./assets/icon.png]",
+    "logo": "[TODO: ./assets/logo.png]",
+    "screenshots": [
+      "[TODO: ./assets/screenshot1.png]",
+      "[TODO: ./assets/screenshot2.png]",
+      "[TODO: ./assets/screenshot3.png]"
+    ]
+  }
+}

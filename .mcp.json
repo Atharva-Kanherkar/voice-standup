@@ -1,0 +1,14 @@
+{
+  "mcpServers": {
+    "voice-standup": {
+      "command": "node",
+      "args": [
+        "./scripts/mcp-server.mjs"
+      ],
+      "env": {
+        "OPENAI_API_KEY": "${OPENAI_API_KEY}",
+        "VOICE_STANDUP_MODEL": "${VOICE_STANDUP_MODEL:-gpt-realtime-2}"
+      }
+    }
+  }
+}
